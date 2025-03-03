@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Badger 2040 W Screen Designer</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #fff;
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+        canvas {
+            border: 1px solid #fff;
+            background-color: #000;
+        }
+        .toolbar {
+            margin-top: 10px;
+        }
+        button {
+            margin: 5px;
+            padding: 10px;
+            background-color: #333;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #555;
+        }
+    </style>
+</head>
+<body>
+    <h1>Badger 2040 W Screen Designer</h1>
+    <canvas id="drawingCanvas" width="296" height="128"></canvas>
+    <div class="toolbar">
+        <button onclick="clearCanvas()">Clear</button>
+        <button onclick="exportCode()">Export Code</button>
+    </div>
+    <script>
+        const canvas = document.getElementById("drawingCanvas");
+        const ctx = canvas.getContext("2d");
+        let drawing = false;
+
+        canvas.addEventListener("mousedown", () => drawing = true);
+        canvas.addEventListener("mouseup", () => drawing = false);
+        canvas.addEventListener("mousemove", draw);
+
+        function draw(event) {
+            if (!drawing) return;
+            const rect = canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            ctx.fillStyle = "white";
+            ctx.fillRect(x, y, 1, 1);
+        }
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function exportCode() {
+            let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+            let output = "static const unsigned char image_bits[] = {\n";
+            for (let i = 0; i < imageData.length; i += 4) {
+                let bit = imageData[i] > 0 ? 1 : 0;
+                output += bit + (i % (canvas.width * 4) === 0 ? "\n" : ", ");
+            }
+            output += "\n};";
+            console.log(output);
+            alert("Code exported! Check console.");
+        }
+    </script>
+</body>
+</html>
